@@ -76,12 +76,15 @@ function initCaller() {
   pc1 = new webkitRTCPeerConnection(null);
   pc1.onicecandidate = function(event) {
     if (event.candidate) {
-      pc2.addIceCandidate(new RTCIceCandidate(event.candidate));
+      server.emit('candidate1', event.candidate)
     }
   }
   pc1.addStream(localstream);
   server.on('answer', function (desc) {
     pc1.setRemoteDescription(desc);
+  })
+  server.on('candidate2', function (candidate) {
+    pc1.addIceCandidate(new RTCIceCandidate(candidate));
   })
 
   pc1.createOffer(function (desc) {
@@ -95,7 +98,7 @@ function initReceiver() {
   pc2 = new webkitRTCPeerConnection(null);
   pc2.onicecandidate = function (event) {
     if (event.candidate) {
-      pc1.addIceCandidate(new RTCIceCandidate(event.candidate));
+      server.emit('candidate2', event.candidate)
     }
   }
   pc2.onaddstream = gotRemoteStream; 
@@ -105,6 +108,9 @@ function initReceiver() {
       pc2.setLocalDescription(desc);
       server.emit('answer', desc);
     })
+  })
+  server.on('candidate1', function (candidate) {
+    pc2.addIceCandidate(new RTCIceCandidate(candidate));
   })
 }
 
