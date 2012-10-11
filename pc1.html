@@ -21,16 +21,11 @@ textarea {
 </style>
 </head>
 <body>
-<video id="vid1" autoplay></video>
-<video id="vid2" autoplay></video>
+<video id="video1" autoplay></video>
+<video id="video2" autoplay></video>
 <br>
-<button id="btn1" onclick="start()">Start</button>
-<button id="btnCaller" onclick="initCaller()">Caller</button>
-<button id="btnReceiver" onclick="initReceiver()">Receiver</button>
-<button id="btn3" onclick="hangup()">Hang Up</button>
-<br>
-<xtextarea id="ta1"></textarea>
-<xtextarea id="ta2"></textarea>
+<button onclick="start()">Start</button>
+<button onclick="hangup()">Hang Up</button>
 <script>
 
 var server = {
@@ -48,9 +43,6 @@ var server = {
   }
 }
 
-var pc1,pc2;
-var localstream;
-
 function trace(text) {
   // This function is used for logging.
   if (text[text.length - 1] == '\n') {
@@ -59,28 +51,27 @@ function trace(text) {
   console.log((performance.webkitNow() / 1000).toFixed(3) + ": " + text);
 }
 
-function gotStream(stream){
-  trace("Received local stream");
-  vid1.src = webkitURL.createObjectURL(stream);
-  localstream = stream;
-}
-
 function start() {
-  trace("Requesting local stream");
-  btn1.disabled = true;
-  navigator.webkitGetUserMedia({audio:true, video:true},
-                               gotStream, function() {});
+  initReceiver()
+  navigator.webkitGetUserMedia(
+    {audio:true, video:true},
+    function (stream) {
+      video1.src = webkitURL.createObjectURL(stream);
+      initCaller(stream)
+    },
+    function() {}
+  );
 }
 
-function initCaller() {
+function initCaller(stream) {
   trace('initCaller')
-  pc1 = new webkitRTCPeerConnection(null);
+  var pc1 = new webkitRTCPeerConnection(null);
   pc1.onicecandidate = function(event) {
     if (event.candidate) {
       server.emit('candidate1', event.candidate)
     }
   }
-  pc1.addStream(localstream);
+  pc1.addStream(stream);
   server.on('answer', function (desc) {
     pc1.setRemoteDescription(desc);
   })
@@ -101,13 +92,15 @@ function initCaller() {
 
 function initReceiver() {
   trace('initReceiver')
-  pc2 = new webkitRTCPeerConnection(null);
+  var pc2 = new webkitRTCPeerConnection(null);
   pc2.onicecandidate = function (event) {
     if (event.candidate) {
       server.emit('candidate2', event.candidate)
     }
   }
-  pc2.onaddstream = gotRemoteStream; 
+  pc2.onaddstream = function (e) {
+    video2.src = webkitURL.createObjectURL(e.stream);
+  }; 
   server.on('offer', function(desc){
     pc2.setRemoteDescription(desc)
     pc2.createAnswer(function(desc) {
@@ -129,11 +122,6 @@ function initReceiver() {
 function hangup() {
   trace("Ending call");
   server.emit('hangup')
-}
-
-function gotRemoteStream(e){
-  vid2.src = webkitURL.createObjectURL(e.stream);
-  trace("Received remote stream");
 }
 
 </script>
