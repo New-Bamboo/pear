@@ -74,32 +74,38 @@ function start() {
 function initCaller() {
   trace('initCaller')
   pc1 = new webkitRTCPeerConnection(null);
-  pc1.onicecandidate = iceCallBack1; 
+  pc1.onicecandidate = function(event) {
+    if (event.candidate) {
+      pc2.addIceCandidate(new RTCIceCandidate(event.candidate));
+    }
+  }
   pc1.addStream(localstream);
-  pc1.createOffer(gotDescription1);
-  server.emit('offer')
+  server.on('answer', function (desc) {
+    pc1.setRemoteDescription(desc);
+  })
+
+  pc1.createOffer(function (desc) {
+    pc1.setLocalDescription(desc);
+    server.emit('offer', desc)
+  })
 }
 
 function initReceiver() {
   trace('initReceiver')
   pc2 = new webkitRTCPeerConnection(null);
-  pc2.onicecandidate = iceCallBack2;
+  pc2.onicecandidate = function (event) {
+    if (event.candidate) {
+      pc1.addIceCandidate(new RTCIceCandidate(event.candidate));
+    }
+  }
   pc2.onaddstream = gotRemoteStream; 
-  server.on('offer', function(){
-    pc2.createAnswer(gotDescription2)
+  server.on('offer', function(desc){
+    pc2.setRemoteDescription(desc)
+    pc2.createAnswer(function(desc) {
+      pc2.setLocalDescription(desc);
+      server.emit('answer', desc);
+    })
   })
-}
-
-function gotDescription1(desc){
-  pc1.setLocalDescription(desc);
-  trace("Offer from pc1 \n" + desc.sdp);
-  pc2.setRemoteDescription(desc);
-}
-
-function gotDescription2(desc){
-  pc2.setLocalDescription(desc);
-  trace("Answer from pc2 \n" + desc.sdp);
-  pc1.setRemoteDescription(desc);
 }
 
 function hangup() {
@@ -115,19 +121,6 @@ function gotRemoteStream(e){
   trace("Received remote stream");
 }
 
-function iceCallBack1(event){
-  if (event.candidate) {
-    pc2.addIceCandidate(new RTCIceCandidate(event.candidate));
-    trace("Local ICE candidate: \n" + event.candidate.candidate);
-  }
-}
-      
-function iceCallBack2(event){
-  if (event.candidate) {
-    pc1.addIceCandidate(new RTCIceCandidate(event.candidate));
-    trace("Remote ICE candidate: \n " + event.candidate.candidate);
-  }
-}
 </script>
 </body>
 </html>
