@@ -25,17 +25,29 @@ textarea {
 <video id="vid2" autoplay></video>
 <br>
 <button id="btn1" onclick="start()">Start</button>
-<button id="btn2" onclick="call()">Call</button>
+<button id="btnCall" onclick="call()">Both</button>
+<button id="btnCaller" onclick="initCaller()">Caller</button>
+<button id="btnReceiver" onclick="initReceiver()">Receiver</button>
 <button id="btn3" onclick="hangup()">Hang Up</button>
 <br>
 <xtextarea id="ta1"></textarea>
 <xtextarea id="ta2"></textarea>
 <script>
-//var vid1 = document.getElementById("vid1");
-//var vid2 = document.getElementById("vid2");
-btn1.disabled = false;
-btn2.disabled = true;
-btn3.disabled = true;
+
+var server = {
+  callbacks: {},
+
+  emit: function(name, payload){
+    if( this.callbacks[name] ) {
+      this.callbacks[name](payload)
+    }
+  },
+
+  on: function(name, callback){
+    this.callbacks[name] = callback
+  }
+}
+
 var pc1,pc2;
 var localstream;
 
@@ -51,7 +63,6 @@ function gotStream(stream){
   trace("Received local stream");
   vid1.src = webkitURL.createObjectURL(stream);
   localstream = stream;
-  btn2.disabled = false;
 }
 
 function start() {
@@ -59,29 +70,54 @@ function start() {
   btn1.disabled = true;
   navigator.webkitGetUserMedia({audio:true, video:true},
                                gotStream, function() {});
-}  
-  
-function call() {
-  btn2.disabled = true;
-  btn3.disabled = false;
-  trace("Starting call");
-  if (localstream.videoTracks.length > 0)
-    trace('Using Video device: ' + localstream.videoTracks[0].label);  
-  if (localstream.audioTracks.length > 0)
-    trace('Using Audio device: ' + localstream.audioTracks[0].label);
-  var servers = null;
-  pc1 = new webkitRTCPeerConnection(servers);
-  trace("Created local peer connection object pc1");
-  pc1.onicecandidate = iceCallback1; 
-  pc2 = new webkitRTCPeerConnection(servers);
-  trace("Created remote peer connection object pc2");
-  pc2.onicecandidate = iceCallback2;
+}
+
+function call_old() {
+  pc1 = new webkitRTCPeerConnection(null);
+  pc1.onicecandidate = iceCallBack1; 
+  pc2 = new webkitRTCPeerConnection(null);
+  pc2.onicecandidate = iceCallBack2;
   pc2.onaddstream = gotRemoteStream; 
 
   pc1.addStream(localstream);
-  trace("Adding Local Stream to peer connection");
-  
+
   pc1.createOffer(gotDescription1);
+  pc2.createAnswer(gotDescription2);
+}
+
+function call() {
+  pc2 = new webkitRTCPeerConnection(null);
+  pc2.onicecandidate = iceCallBack2;
+  pc2.onaddstream = gotRemoteStream; 
+  server.on('offer', function(){
+    pc2.createAnswer(gotDescription2)
+  })
+
+  pc1 = new webkitRTCPeerConnection(null);
+  pc1.onicecandidate = iceCallBack1; 
+  pc1.addStream(localstream);
+  pc1.createOffer(gotDescription1);
+  server.emit('offer')
+}
+
+function initCaller() {
+  pc1 = new webkitRTCPeerConnection(null);
+  pc1.onicecandidate = iceCallBack1;
+  pc1.addStream(localstream);
+  pc1.createOffer(function (desc) {
+    pc1.setLocalDescription(desc)
+    server.emit('offer', desc)
+  });
+
+}
+
+function initReceiver() {
+  pc2 = new webkitRTCPeerConnection(null);
+  pc2.onicecandidate = iceCallBack2;
+  pc2.onaddstream = gotRemoteStream; 
+  server.on('offer', function (desc) {
+    pc2.setRemoteDescription(desc);
+  })
   pc2.createAnswer(gotDescription2);
 }
 
@@ -103,8 +139,6 @@ function hangup() {
   pc2.close();
   pc1 = null;
   pc2 = null;
-  btn3.disabled = true;
-  btn2.disabled = false;
 }
 
 function gotRemoteStream(e){
@@ -112,14 +146,14 @@ function gotRemoteStream(e){
   trace("Received remote stream");
 }
 
-function iceCallback1(event){
+function iceCallBack1(event){
   if (event.candidate) {
     pc2.addIceCandidate(new RTCIceCandidate(event.candidate));
     trace("Local ICE candidate: \n" + event.candidate.candidate);
   }
 }
       
-function iceCallback2(event){
+function iceCallBack2(event){
   if (event.candidate) {
     pc1.addIceCandidate(new RTCIceCandidate(event.candidate));
     trace("Remote ICE candidate: \n " + event.candidate.candidate);
