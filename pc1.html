@@ -19,30 +19,44 @@ textarea {
   height:640px;
 }
 </style>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var users, me
+    var socket = io.connect('http://192.168.100.69:1337')
+
+    socket.on('welcome', function (data) {
+      me = data
+      console.log("you:", data)
+    })
+
+    socket.on('users', function (data) {
+      users = data
+      console.log(data)
+    })
+
+  </script>
 </head>
 <body>
 <video id="video1" autoplay></video>
 <video id="video2" autoplay></video>
 <br>
-<button onclick="start()">Start</button>
+<button onclick="startCaller()">Start  Caller</button>
+<button onclick="initReceiver()">Start Receiver</button>
 <button onclick="hangup()">Hang Up</button>
 <script>
 
+var server = socket
 var server = {
-  callbacks: {},
-
-  emit: function(name, payload){
-    var message = JSON.stringify(payload)
-    if( this.callbacks[name] ) {
-      this.callbacks[name](message)
-    }
+  on: function () {
+    console.log('on', arguments)
+    socket.on.apply(socket, arguments)
   },
 
-  on: function(name, callback){
-    this.callbacks[name] = function (message) {
-      callback(JSON.parse(message))
-    }
-  }
+  emit: function () {
+    console.log('emit', arguments)
+    socket.emit.apply(socket, arguments)
+  },
+
 }
 
 function trace(text) {
@@ -53,8 +67,7 @@ function trace(text) {
   console.log((performance.webkitNow() / 1000).toFixed(3) + ": " + text);
 }
 
-function start() {
-  initReceiver()
+function startCaller() {
   navigator.webkitGetUserMedia(
     {audio:true, video:true},
     function (stream) {
@@ -68,24 +81,29 @@ function start() {
 function initCaller(stream) {
   trace('initCaller')
   var pc1 = new webkitRTCPeerConnection(null);
-  pc1.onicecandidate = function(event) {
-    if (event.candidate) {
-      server.emit('candidate1', event.candidate)
-    }
-  }
   pc1.addStream(stream);
   server.on('answer', function (data) {
-    var desc = new RTCSessionDescription(data)
+    pc1.onicecandidate = function(event) {
+      if (event.candidate) {
+        server.emit('candidate1', {payload: event.candidate, destId: data.source})
+      }
+    }
+
+    console.log(data)
+    var desc = new RTCSessionDescription(data.payload)
     pc1.setRemoteDescription(desc);
   })
   server.on('candidate2', function (data) {
-    var candidate = new RTCIceCandidate(data)
+    var candidate = new RTCIceCandidate(data.payload)
     pc1.addIceCandidate(candidate);
   })
 
   pc1.createOffer(function (desc) {
     pc1.setLocalDescription(desc);
-    server.emit('offer', desc)
+    server.emit('offer', {
+      payload: desc,
+      destId: users.filter(function (u) { return u !== me })[0]
+    })
   })
 
   server.on('hangup', function () {
@@ -97,25 +115,26 @@ function initCaller(stream) {
 function initReceiver() {
   trace('initReceiver')
   var pc2 = new webkitRTCPeerConnection(null);
-  pc2.onicecandidate = function (event) {
-    if (event.candidate) {
-      server.emit('candidate2', event.candidate)
-    }
-  }
   pc2.onaddstream = function (e) {
     video2.src = webkitURL.createObjectURL(e.stream);
   }; 
   server.on('offer', function(data){
-    var desc = new RTCSessionDescription(data)
+    pc2.onicecandidate = function (event) {
+      if (event.candidate) {
+        server.emit('candidate2', {payload: event.candidate, destId: data.source})
+      }
+    }
+
+    var desc = new RTCSessionDescription(data.payload)
     pc2.setRemoteDescription(desc)
     pc2.createAnswer(function(desc) {
       pc2.setLocalDescription(desc);
-      server.emit('answer', desc);
+      server.emit('answer', {destId: data.source, payload: desc});
     })
   })
 
   server.on('candidate1', function (data) {
-    var candidate = new RTCIceCandidate(data)
+    var candidate = new RTCIceCandidate(data.payload)
     pc2.addIceCandidate(candidate);
   })
 
