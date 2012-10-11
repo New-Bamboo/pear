@@ -37,6 +37,7 @@ var server = {
   callbacks: {},
 
   emit: function(name, payload){
+    console.log(payload)
     if( this.callbacks[name] ) {
       this.callbacks[name](payload)
     }
@@ -91,6 +92,11 @@ function initCaller() {
     pc1.setLocalDescription(desc);
     server.emit('offer', desc)
   })
+
+  server.on('hangup', function () {
+    pc1.close()
+    pc1 = null
+  })
 }
 
 function initReceiver() {
@@ -109,17 +115,20 @@ function initReceiver() {
       server.emit('answer', desc);
     })
   })
+
   server.on('candidate1', function (candidate) {
     pc2.addIceCandidate(new RTCIceCandidate(candidate));
+  })
+
+  server.on('hangup', function () {
+    pc2.close()
+    pc2 = null
   })
 }
 
 function hangup() {
   trace("Ending call");
-  pc1.close(); 
-  pc2.close();
-  pc1 = null;
-  pc2 = null;
+  server.emit('hangup')
 }
 
 function gotRemoteStream(e){
