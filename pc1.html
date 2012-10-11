@@ -32,14 +32,16 @@ var server = {
   callbacks: {},
 
   emit: function(name, payload){
-    console.log(payload)
+    var message = JSON.stringify(payload)
     if( this.callbacks[name] ) {
-      this.callbacks[name](payload)
+      this.callbacks[name](message)
     }
   },
 
   on: function(name, callback){
-    this.callbacks[name] = callback
+    this.callbacks[name] = function (message) {
+      callback(JSON.parse(message))
+    }
   }
 }
 
@@ -72,11 +74,13 @@ function initCaller(stream) {
     }
   }
   pc1.addStream(stream);
-  server.on('answer', function (desc) {
+  server.on('answer', function (data) {
+    var desc = new RTCSessionDescription(data)
     pc1.setRemoteDescription(desc);
   })
-  server.on('candidate2', function (candidate) {
-    pc1.addIceCandidate(new RTCIceCandidate(candidate));
+  server.on('candidate2', function (data) {
+    var candidate = new RTCIceCandidate(data)
+    pc1.addIceCandidate(candidate);
   })
 
   pc1.createOffer(function (desc) {
@@ -101,7 +105,8 @@ function initReceiver() {
   pc2.onaddstream = function (e) {
     video2.src = webkitURL.createObjectURL(e.stream);
   }; 
-  server.on('offer', function(desc){
+  server.on('offer', function(data){
+    var desc = new RTCSessionDescription(data)
     pc2.setRemoteDescription(desc)
     pc2.createAnswer(function(desc) {
       pc2.setLocalDescription(desc);
@@ -109,8 +114,9 @@ function initReceiver() {
     })
   })
 
-  server.on('candidate1', function (candidate) {
-    pc2.addIceCandidate(new RTCIceCandidate(candidate));
+  server.on('candidate1', function (data) {
+    var candidate = new RTCIceCandidate(data)
+    pc2.addIceCandidate(candidate);
   })
 
   server.on('hangup', function () {
