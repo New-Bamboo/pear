@@ -25,7 +25,6 @@ textarea {
 <video id="vid2" autoplay></video>
 <br>
 <button id="btn1" onclick="start()">Start</button>
-<button id="btnCall" onclick="call()">Both</button>
 <button id="btnCaller" onclick="initCaller()">Caller</button>
 <button id="btnReceiver" onclick="initReceiver()">Receiver</button>
 <button id="btn3" onclick="hangup()">Hang Up</button>
@@ -72,27 +71,8 @@ function start() {
                                gotStream, function() {});
 }
 
-function call_old() {
-  pc1 = new webkitRTCPeerConnection(null);
-  pc1.onicecandidate = iceCallBack1; 
-  pc2 = new webkitRTCPeerConnection(null);
-  pc2.onicecandidate = iceCallBack2;
-  pc2.onaddstream = gotRemoteStream; 
-
-  pc1.addStream(localstream);
-
-  pc1.createOffer(gotDescription1);
-  pc2.createAnswer(gotDescription2);
-}
-
-function call() {
-  pc2 = new webkitRTCPeerConnection(null);
-  pc2.onicecandidate = iceCallBack2;
-  pc2.onaddstream = gotRemoteStream; 
-  server.on('offer', function(){
-    pc2.createAnswer(gotDescription2)
-  })
-
+function initCaller() {
+  trace('initCaller')
   pc1 = new webkitRTCPeerConnection(null);
   pc1.onicecandidate = iceCallBack1; 
   pc1.addStream(localstream);
@@ -100,25 +80,14 @@ function call() {
   server.emit('offer')
 }
 
-function initCaller() {
-  pc1 = new webkitRTCPeerConnection(null);
-  pc1.onicecandidate = iceCallBack1;
-  pc1.addStream(localstream);
-  pc1.createOffer(function (desc) {
-    pc1.setLocalDescription(desc)
-    server.emit('offer', desc)
-  });
-
-}
-
 function initReceiver() {
+  trace('initReceiver')
   pc2 = new webkitRTCPeerConnection(null);
   pc2.onicecandidate = iceCallBack2;
   pc2.onaddstream = gotRemoteStream; 
-  server.on('offer', function (desc) {
-    pc2.setRemoteDescription(desc);
+  server.on('offer', function(){
+    pc2.createAnswer(gotDescription2)
   })
-  pc2.createAnswer(gotDescription2);
 }
 
 function gotDescription1(desc){
