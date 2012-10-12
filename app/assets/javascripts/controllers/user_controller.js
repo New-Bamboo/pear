@@ -5,7 +5,7 @@ define([
   
   return Controller.sub('UserController')
 
-    .models('user')
+    .models('user', 'line')
 
     .onDOM('', 'click', 'onSelect')
 
@@ -19,7 +19,7 @@ define([
       },
       
       onSelect: function () {
-        alert(this.user.email())
+        this.line.callUser(this.user)
       }
     })
 

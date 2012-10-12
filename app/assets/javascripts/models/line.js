@@ -3,9 +3,42 @@ define([
 ], function (Model) {
   return Model.sub('Line')
 
-    .attributes('pusher', 'user')
+    .attributes('pusher', 'user', 'stream')
 
     .proto({
+      callUser: function (user) {
+        var peerConnection = new webkitRTCPeerConnection(null)
+
+        peerConnection.addStream(this.stream().stream())
+
+        this.bind('answer', function (data) {
+          peerConnection.onicecandidate = (function(event) {
+            if (event.candidate) {
+              this.trigger('candidate', {payload: event.candidate, destination: data.source})
+            }
+          }).bind(this)
+
+          var desc = new RTCSessionDescription(data.payload)
+          peerConnection.setRemoteDescription(desc);
+        })
+        this.bind('candidate', function (data) {
+          var candidate = new RTCIceCandidate(data.payload)
+          peerConnection.addIceCandidate(candidate);
+        })
+
+        peerConnection.createOffer((function (desc) {
+          peerConnection.setLocalDescription(desc);
+          this.trigger('offer', {
+            payload: desc,
+            destination: user.email()
+          })
+        }).bind(this))
+
+        this.bind('hangup', function () {
+          peerConnection.close()
+          peerConnection = null
+        })
+      },
 
       listen: function () {
         var peerConnection = new webkitRTCPeerConnection(null);
@@ -46,7 +79,7 @@ define([
       },
 
       trigger: function (eventName, params) {
-        $.post('/events/'+eventName, params)
+        $.post('/events/'+eventName, {event: params})
       }
 
     })
