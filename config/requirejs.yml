@@ -1,0 +1,9 @@
+modules:
+  - name: global
+  - name: controllers/room_app_controller
+    exclude: ['global']
+shim:
+  jquery_ujs:
+    deps: ['jquery']
+  'vendor/jquery.form_params':
+    deps: ['jquery']
