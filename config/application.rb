@@ -65,6 +65,9 @@ module Pear
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
+    # Include templates in requirejs assets build
+    config.requirejs.logical_asset_filter += [/\.mustache$/]
+
     config.middleware.use OmniAuth::Builder do
       provider :google_apps, domain: 'new-bamboo.co.uk'
     end
