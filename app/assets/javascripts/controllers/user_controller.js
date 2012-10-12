@@ -7,6 +7,8 @@ define([
 
     .models('user')
 
+    .onDOM('', 'click', 'onSelect')
+
     .proto({
       createDOM: function () {
         return $('<li>').addClass('user-controller')
@@ -14,6 +16,10 @@ define([
 
       render: function () {
         $(this.dom).html(template({user: this.user}))
+      },
+      
+      onSelect: function () {
+        alert(this.user.email())
       }
     })
 
