@@ -2,7 +2,8 @@ Pear::Application.routes.draw do
 
   post "/events/offer" => "events#offer"
   post "/events/answer" => "events#answer"
-  post "/events/candidate" => "events#candidate"
+  post "/events/candidate_from_caller" => "events#candidate_from_caller"
+  post "/events/candidate_from_receiver" => "events#candidate_from_receiver"
   post "/events/hangup" => "events#hangup"
 
   resource :channel_auth, only: :create

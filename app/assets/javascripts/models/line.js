@@ -14,14 +14,14 @@ define([
         this.bind('answer', function (data) {
           peerConnection.onicecandidate = (function(event) {
             if (event.candidate) {
-              this.trigger('candidate', {payload: event.candidate, destination: data.source})
+              this.trigger('candidate_from_caller', {payload: event.candidate, destination: data.source})
             }
           }).bind(this)
 
           var desc = new RTCSessionDescription(data.payload)
           peerConnection.setRemoteDescription(desc);
         })
-        this.bind('candidate', function (data) {
+        this.bind('candidate_from_receiver', function (data) {
           var candidate = new RTCIceCandidate(data.payload)
           peerConnection.addIceCandidate(candidate);
         })
@@ -50,7 +50,7 @@ define([
         this.bind('offer', function(data){
           peerConnection.onicecandidate = (function (event) {
             if (event.candidate) {
-              this.trigger('candidate', {payload: event.candidate, destination: data.source})
+              this.trigger('candidate_from_receiver', {payload: event.candidate, destination: data.source})
             }
           }).bind(this)
 
@@ -62,7 +62,7 @@ define([
           }).bind(this))
         })
 
-        this.bind('candidate', function (data) {
+        this.bind('candidate_from_caller', function (data) {
           var candidate = new RTCIceCandidate(data.payload)
           peerConnection.addIceCandidate(candidate)
         })

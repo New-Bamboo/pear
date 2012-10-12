@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
 
-  EVENT_TYPES = [:offer, :answer, :candidate, :hangup]
+  EVENT_TYPES = [:offer, :answer, :candidate_from_caller, :candidate_from_receiver, :hangup]
 
   EVENT_TYPES.each do |event_type|
     define_method event_type do
