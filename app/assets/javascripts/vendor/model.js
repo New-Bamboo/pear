@@ -88,6 +88,7 @@ define(['./type', './event_emitter', './collection'], function(Type, eventEmitte
           this.createReader(arguments[i])
           this.createWriter(arguments[i])
         }
+        return this
       },
 
       collection: function(name, options){
