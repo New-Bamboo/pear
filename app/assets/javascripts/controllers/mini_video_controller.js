@@ -11,12 +11,23 @@ define([
       },
 
       render: function () {
-        $(this.dom).html(template({greeting: 'Hello!'}))
+        $(this.dom).html(template())
       }
     })
 
     .after('init', function () {
       this.render()
+      
+      var video = this.find('video')[0]
+      
+      navigator.webkitGetUserMedia(
+        {audio:true, video:true},
+        function (stream) {
+          video.src = webkitURL.createObjectURL(stream);
+        },
+        function() {}
+      );
+
     })
 
 })
