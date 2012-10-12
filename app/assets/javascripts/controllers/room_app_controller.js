@@ -1,9 +1,10 @@
 define([
   'controllers/main_controller',
   'controllers/sidebar_controller',
+  'models/room',
   'vendor/controller',
   'vendor/template!room_app'
-], function (MainController, SidebarController, Controller, template) {
+], function (MainController, SidebarController, Room, Controller, template) {
   
   return Controller.sub('RoomAppController')
 
@@ -20,6 +21,7 @@ define([
     })
 
     .after('init', function () {
+      this.newModel('room', new Room())
       this.render()
     })
 
