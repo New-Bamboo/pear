@@ -10,3 +10,5 @@ end
 
 gem 'jquery-rails'
 gem 'jbuilder'
+
+gem 'pusher'
