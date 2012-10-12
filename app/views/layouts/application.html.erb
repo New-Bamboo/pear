@@ -7,7 +7,8 @@
   <%= csrf_meta_tags %>
 </head>
 <body>
-  <div>
+
+  <nav class="top-bar">
     <ul>
       <li>
         <% if @current_user.present? %>
@@ -17,7 +18,7 @@
         <% end %>
       </li>
     </ul>
-  </div>
+  </nav>
 
 <%= yield %>
 
