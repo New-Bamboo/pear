@@ -5,14 +5,9 @@ module Js
     argument :name, :type => :string
 
     def create_stuff
-      template "controller.coffee.erb",       "app/assets/javascripts/controllers/#{controller_name}.coffee"
+      template "controller.js.erb",       "app/assets/javascripts/controllers/#{controller_name}.js"
       template "template.mustache.erb", "app/assets/javascripts/templates/#{underscore_name}.mustache"
       template "controller.css.scss.erb",     "app/assets/stylesheets/controllers/#{underscore_name}.css.scss"
-      # apps.each do |app|
-      #   if yes?("Create a handler for #{app} app?")
-      #     template "handler.coffee.erb", "app/assets/javascripts/apps/#{app}/handlers/#{handler_name}.coffee"
-      #   end
-      # end
     end
 
     private

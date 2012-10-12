@@ -1,0 +1,22 @@
+define([
+  'vendor/controller',
+  'vendor/template!<%= underscore_name %>'
+], function (Controller, template) {
+  
+  return Controller.sub('<%= controller_name.camelize %>')
+
+    .proto({
+      createDOM: function () {
+        return $('<div>').addClass('<%= controller_name.dasherize %>')
+      },
+
+      render: function () {
+        return $(this.dom).html(template({greeting: 'Hello!'}))
+      }
+    })
+
+    .after('init', function () {
+      this.render()
+    })
+
+})
