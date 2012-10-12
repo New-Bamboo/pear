@@ -6,6 +6,8 @@ gem 'thin'
 gem 'jquery-rails'
 gem 'jbuilder'
 gem 'requirejs-rails'
+gem 'omniauth'
+gem 'omniauth-google-apps'
 
 group :assets do
   gem 'sass-rails',   '~> 3.2.3'
