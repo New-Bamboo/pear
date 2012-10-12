@@ -5,6 +5,8 @@ Pear::Application.routes.draw do
   post "/events/candidate" => "events#candidate"
   post "/events/hangup" => "events#hangup"
 
+  resource :channel_auth, only: :create
+
   root :to => 'home#show'
 
   get '/room' => 'rooms#show', :as => :room
