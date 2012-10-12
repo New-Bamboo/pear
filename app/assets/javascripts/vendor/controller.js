@@ -32,6 +32,7 @@ define(['./type', './handleable', './subscriber'], function(Type, handleable, su
             this.__requiredModels__.push(modelName)
           }
         }
+        return this
       },
       
       onModelSubscriptions: function(modelName){
@@ -45,6 +46,7 @@ define(['./type', './handleable', './subscriber'], function(Type, handleable, su
           eventName: eventName,
           methodName: methodName
         })
+        return this
       },
 
       onDOM: function(selector, eventName, methodName){
@@ -53,6 +55,7 @@ define(['./type', './handleable', './subscriber'], function(Type, handleable, su
           selector: selector,
           methodName: methodName
         })
+        return this
       },
 
       DOMEvents: function(){
