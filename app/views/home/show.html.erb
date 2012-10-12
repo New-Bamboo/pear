@@ -1,0 +1,5 @@
+<% if @current_user.present? %>
+  <div>Hi! <%= @current_user %></div>
+<% else %>
+  <div>Not logged in</div>
+<% end %>
