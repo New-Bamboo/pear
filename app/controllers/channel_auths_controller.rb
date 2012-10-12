@@ -4,7 +4,7 @@ class ChannelAuthsController < ApplicationController
 
   def create
     if current_user
-      render json: Pusher[params[:channel_name]].authenticate(params[:socket_id])
+      render json: Pusher[params[:channel_name]].authenticate(params[:socket_id], user_id: current_user)
     else
       render nothing: true, status: 403
     end

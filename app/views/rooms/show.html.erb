@@ -1,6 +1,11 @@
+<script src="http://js.pusher.com/1.12/pusher.min.js"></script>
 <script>
   require(['controllers/room_app_controller'], function(RoomAppController){
-    window.app = new RoomAppController({}, {}).appendTo('#app')
+    Pusher.channel_auth_endpoint = "/channel_auth"
+    var pusher = new Pusher('<%= Pusher.key %>')
+    window.app = new RoomAppController({
+      pusher: pusher
+    }).appendTo('#app')
   })
 </script>
 
