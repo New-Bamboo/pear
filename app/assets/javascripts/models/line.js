@@ -45,7 +45,6 @@ define([
 
         peerConnection.onaddstream = (function (e) {
           this.emit('stream', e.stream)
-          console.log("EMITTING STREAM", e.stream)
         }).bind(this);
 
         this.bind('offer', function(data){

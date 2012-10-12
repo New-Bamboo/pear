@@ -1,9 +1,14 @@
 define([
+  'controllers/call_controller',
   'vendor/controller',
   'vendor/template!main'
-], function (Controller, template) {
+], function (CallController, Controller, template) {
   
   return Controller.sub('MainController')
+
+    .models('line')
+
+    .onModel('line', 'stream', 'onNewStream')
 
     .proto({
       createDOM: function () {
@@ -11,7 +16,11 @@ define([
       },
 
       render: function () {
-        $(this.dom).html(template({greeting: 'Hello!'}))
+        $(this.dom).html(template())
+      },
+
+      onNewStream: function (videoStream) {
+        this.addChild('call', CallController, {videoStream: videoStream})
       }
     })
 
