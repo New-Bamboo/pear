@@ -1,0 +1,15 @@
+define([
+  'vendor/model'
+], function (Model) {
+  return Model.sub('<%= model_name.camelize %>')
+  
+    .proto({
+      // someMethod: function () {
+      //  
+      // }
+    })
+    
+    .after('init', function () {
+      // do something
+    })
+})

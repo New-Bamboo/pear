@@ -1,0 +1,7 @@
+Description:
+Generates a js model
+
+Example:
+    rails generate js:model post_comment
+
+    This will create a model file for PostComment

@@ -1,0 +1,11 @@
+require ['models/<%= model_name %>'], (<%= model_name.camelize %>) ->
+  describe "<%= model_name.camelize %>", ->
+
+    describe "something", ->
+      <%= js_variable_name %> = null
+
+      beforeEach ->
+        <%= js_variable_name %> = new <%= model_name.camelize %>()
+
+      it "implements tests yo", ->
+        expect( <%= js_variable_name %>.something ).toEqual("FAIL")
