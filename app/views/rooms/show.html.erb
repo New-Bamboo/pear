@@ -1,1 +1,7 @@
-ROOM APP
+<script>
+  require(['controllers/room_app_controller'], function(RoomAppController){
+    window.app = new RoomAppController({}, {}).appendTo('#app')
+  })
+</script>
+
+<div id="app"></div>
