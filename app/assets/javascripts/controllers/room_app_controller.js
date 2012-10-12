@@ -23,8 +23,7 @@ define([
     })
 
     .after('init', function () {
-      var presenceChannel = this.pusher.subscribe('presence-room')
-      this.newModel('room', new Room({channel: presenceChannel}))
+      this.newModel('room', new Room({pusher: this.pusher}))
       this.newModel('users', this.room.users())
       
       this.render()
