@@ -8,16 +8,24 @@ define([
 
     .models('users')
 
+    .onModel('users', 'add', 'addUser')
+    .onModel('users', 'remove', 'removeUser')
+
     .proto({
       createDOM: function () {
-        return $('<div>').addClass('user-list-controller')
+        return $('<ul>').addClass('user-list-controller')
       },
 
       render: function () {
-        $(this.dom).html(template())
-        this.users.forEach(function (user) {
-          this.addChild('user', UserController, {user: user})
-        }, this)
+        this.users.forEach(this.addUser.bind(this))
+      },
+
+      addUser: function (user) {
+        this.addChild(user.email(), UserController, {user: user})
+      },
+
+      removeUser: function (user) {
+        this.destroyChild(user.email())
       }
     })
 

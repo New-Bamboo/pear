@@ -8,6 +8,8 @@ define([
   
   return Controller.sub('RoomAppController')
 
+    .models('pusher')
+
     .proto({
       createDOM: function () {
         return $('<div>').addClass('room-app-controller')
@@ -21,8 +23,10 @@ define([
     })
 
     .after('init', function () {
-      this.newModel('room', new Room())
+      var presenceChannel = this.pusher.subscribe('presence-room')
+      this.newModel('room', new Room({channel: presenceChannel}))
       this.newModel('users', this.room.users())
+      
       this.render()
     })
 
