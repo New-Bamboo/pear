@@ -5,6 +5,8 @@
     var pusher = new Pusher('<%= Pusher.key %>')
     window.app = new RoomAppController({
       pusher: pusher
+    }, {
+      email: '<%=  @current_user %>'
     }).appendTo('#app')
   })
 </script>
