@@ -1,7 +1,9 @@
 define([
+  'controllers/mini_video_controller',
+  'controllers/user_list_controller',
   'vendor/controller',
   'vendor/template!sidebar'
-], function (Controller, template) {
+], function (MiniVideoController, UserListController, Controller, template) {
   
   return Controller.sub('SidebarController')
 
@@ -11,7 +13,9 @@ define([
       },
 
       render: function () {
-        $(this.dom).html(template({greeting: 'Hello!'}))
+        $(this.dom).html(template())
+        this.addChild('user-list', UserListController)
+        this.addChild('mini-video', MiniVideoController)
       }
     })
 
