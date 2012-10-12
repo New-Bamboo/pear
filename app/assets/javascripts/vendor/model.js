@@ -109,6 +109,8 @@ define(['./type', './event_emitter', './collection'], function(Type, eventEmitte
           this[name]().set(items)
           this.emit('change:' + name)
         }
+        
+        return this
       },
 
       createReader: function(attr){
