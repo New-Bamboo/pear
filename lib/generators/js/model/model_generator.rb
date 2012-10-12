@@ -5,8 +5,8 @@ module Js
     argument :name, :type => :string
 
     def create_stuff
-      template "model.coffee.erb", "app/assets/javascripts/models/#{model_name}.coffee"
-      template "spec.coffee.erb", "spec/javascripts/models/#{model_name}_spec.coffee"
+      template "model.js.erb", "app/assets/javascripts/models/#{model_name}.js"
+      # template "spec.coffee.erb", "spec/javascripts/models/#{model_name}_spec.coffee"
     end
 
     private
