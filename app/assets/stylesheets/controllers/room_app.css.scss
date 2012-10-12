@@ -1,3 +1,12 @@
 .room-app-controller {
-  
+  display: inline-block;
+  width:1000px;
+  .sidebar {
+    width: 200px;
+    float:left;
+  }
+  .main {
+    width: 800px;
+    float:left;
+  }
 }

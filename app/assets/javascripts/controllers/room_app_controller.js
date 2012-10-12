@@ -1,7 +1,9 @@
 define([
+  'controllers/main_controller',
+  'controllers/sidebar_controller',
   'vendor/controller',
   'vendor/template!room_app'
-], function (Controller, template) {
+], function (MainController, SidebarController, Controller, template) {
   
   return Controller.sub('RoomAppController')
 
@@ -11,7 +13,9 @@ define([
       },
 
       render: function () {
-        return $(this.dom).html(template({greeting: 'Hello!'}))
+        $(this.dom).html(template())
+        this.addChild('sidebar', SidebarController)
+        this.addChild('main', MainController)
       }
     })
 
