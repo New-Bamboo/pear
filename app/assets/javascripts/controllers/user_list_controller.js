@@ -1,9 +1,12 @@
 define([
+  'controllers/user_controller',
   'vendor/controller',
   'vendor/template!user_list'
-], function (Controller, template) {
+], function (UserController, Controller, template) {
   
   return Controller.sub('UserListController')
+
+    .models('users')
 
     .proto({
       createDOM: function () {
@@ -11,7 +14,10 @@ define([
       },
 
       render: function () {
-        $(this.dom).html(template({greeting: 'Hello!'}))
+        $(this.dom).html(template())
+        this.users.forEach(function (user) {
+          this.addChild('user', UserController, {user: user})
+        }, this)
       }
     })
 

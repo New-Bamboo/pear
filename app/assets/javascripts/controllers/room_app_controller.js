@@ -22,6 +22,7 @@ define([
 
     .after('init', function () {
       this.newModel('room', new Room())
+      this.newModel('users', this.room.users())
       this.render()
     })
 

@@ -14,9 +14,9 @@ define([
     
     .after('init', function () {
       this.setUsers([
-        new User({name: 'Tom'}),
-        new User({name: 'Mark'}),
-        new User({name: 'Ollie'})
+        new User({email: 'Tom'}),
+        new User({email: 'Mark'}),
+        new User({email: 'Ollie'})
       ])
     })
 })
